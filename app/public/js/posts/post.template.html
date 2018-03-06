@@ -1,0 +1,136 @@
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand">Reddit Clone</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <div class="pull-right">
+    <p><a class="btn btn-info" ng-click="$ctrl.newPostToggle()">New Post</a></p>
+  </div>
+
+  <ul class="nav nav-pills">
+    <li role="presentation" class="active">
+      <input type="search" class="form-control input-sm search-form" placeholder="Filter" ng-model="search">
+    </li>
+    <div class="form-inline">
+      <label for="sort">  Sort by </label>
+      <select class="form-control" id="sort" ng-model="$ctrl.orderBy">
+        <option value="-vote_count">Votes</option>
+        <option value="-created_at">Date</option>
+        <option value="title">Title</option>
+        <option value="author">Author</option>
+      </select>
+    </div>
+  </ul>
+
+  <div class="row" ng-if="$ctrl.addPost">
+    <div class="col-md-8">
+
+      <form name="form" novalidate ng-submit="$ctrl.createPost()">
+        <div
+        ng-class="{'form-group' : true, 'has-error' : form.title.$invalid && form.title.$touched}">
+          <label for="title">Title</label>
+          <input id="title" class="form-control" name="title" ng-model="$ctrl.post.title" required>
+        </div>
+        <div ng-class="{'form-group' : true, 'has-error' : form.body.$invalid && form.body.$touched}">
+          <label for="body">Body</label>
+          <textarea id="body" class="form-control" name="body" ng-model="$ctrl.post.body" required></textarea>
+        </div>
+        <div ng-class="{'form-group' : true, 'has-error' : form.author.$invalid && form.author.$touched}">
+          <label for="author">Author</label>
+          <input id="author" class="form-control" name="author" ng-model="$ctrl.post.author" required>
+        </div>
+        <div ng-class="{'form-group' : true, 'has-error' : form.image_url.$invalid && form.image_url.$touched}">
+          <label for="image-url">Image URL</label>
+          <input id="image-url" class="form-control" name="image_url" ng-model="$ctrl.post.image_url" required>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary" ng-disabled='form.$invalid'>
+            Create Post
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="row" >
+    <div class="col-md-12">
+
+      <div class="well" ng-repeat="post in $ctrl.posts | orderBy:$ctrl.orderBy | filter:search">
+        <div class="media-left">
+          <img ng-src="{{ post.image_url }}" class="media-object">
+          <p class="text-center">
+            <a ui-sref="postedit({ id: post.id })">Edit</a>
+            |
+            <a ng-click="$ctrl.deletePost(post)">Delete</a>
+          </p>
+        </div>
+        <div class="media-body">
+          <div>
+            <h4 class="media-heading">
+              {{ post.title }}
+              |
+              <a><i class="glyphicon glyphicon-arrow-up" ng-click="$ctrl.upVote(post)"></i></a>
+              <a><i class="glyphicon glyphicon-arrow-down" ng-click="$ctrl.downVote(post)"></i></a>
+              {{ post.vote_count }}
+            </h4>
+          </div>
+          <div class="text-left">
+            <p>
+              {{ post.author }}
+            </p>
+          </div>
+          <p name="body">
+            {{ post.body }}
+          </p>
+          <div>
+            <span am-time-ago="post.created_at"></span>
+            |
+            <i class="glyphicon glyphicon-comment"></i>
+            <a ng-click="commentsToggle=!commentsToggle">
+              <ng-pluralize
+                count="post.comments.length"
+                when="{'0': '0 Comments', 'one': '1 Comment', 'other': '{} Comments'}">
+              </ng-pluralize>
+            </a>
+          </div>
+          <div class="row" ng-if="commentsToggle">
+            <div class="col-md-offset-1">
+              <hr>
+              <p ng-repeat="comment in post.comments">
+                {{ comment.content }}
+                |
+                <i class="glyphicon glyphicon-time"></i>
+                <span am-time-ago="comment.created_at"></span>
+              </p>
+              <form class="form-inline" name="commentList" ng-submit="$ctrl.addComments(post)">
+                <div class="form-group">
+                  <input class="form-control" name="comment" ng-model="post.comment.content">
+                </div>
+                <div class="form-group">
+                  <input type="submit" class="btn btn-primary">
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
